@@ -443,7 +443,7 @@ private RunTrace runTrace = new RunTrace();
 		java.util.Map<String, routines.system.TalendDataSource> talendDataSources = new java.util.HashMap<String, routines.system.TalendDataSource>();
 		java.util.Map<String, javax.sql.DataSource> dataSources = new java.util.HashMap<String, javax.sql.DataSource>();
 		
-		for (Map.Entry<String, javax.sql.DataSource> entry : BundleUtils.getServices(serviceReferences,  javax.sql.DataSource.class).entrySet()) {
+		for (java.util.Map.Entry<String, javax.sql.DataSource> entry : BundleUtils.getServices(serviceReferences,  javax.sql.DataSource.class).entrySet()) {
                     dataSources.put(entry.getKey(), entry.getValue());
                     talendDataSources.put(entry.getKey(), new routines.system.TalendDataSource(entry.getValue()));
 		}
