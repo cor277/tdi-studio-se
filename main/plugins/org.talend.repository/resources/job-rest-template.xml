@@ -161,7 +161,7 @@
 				xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0" />
 		</property>
 #end
-#if (!$dataSources.isEmpty())
+#if (!$job.dataSources.isEmpty())
 		<property name="dataSourceReferences">
 		    <ref component-id="dataSourceReferenceList" /> 
 		</property>
@@ -192,7 +192,7 @@
 		<argument value="${endpoint.address}" />
 	</bean>
 #end
-#if (!$dataSources.isEmpty())
+#if (!$job.dataSources.isEmpty())
 	<reference-list id="dataSourceReferenceList" member-type="service-reference" interface="javax.sql.DataSource" />
 #end
 </blueprint>
