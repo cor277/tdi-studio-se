@@ -56,8 +56,7 @@ public abstract class ConfigExternalLibPage extends WizardPage {
         boolean readonly = false;
         IProxyRepositoryFactory repFactory = ProxyRepositoryFactory.getInstance();
         ERepositoryStatus status = repFactory.getStatus(getSelectedRepositoryNode().getObject());
-        if (!repFactory.isPotentiallyEditable(getSelectedRepositoryNode().getObject())
-                || status == ERepositoryStatus.LOCK_BY_OTHER || status == ERepositoryStatus.LOCK_BY_USER) {
+        if (status == ERepositoryStatus.LOCK_BY_OTHER || status == ERepositoryStatus.LOCK_BY_USER) {
             readonly = true;
         }
         return readonly;
