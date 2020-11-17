@@ -17,6 +17,7 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.talend.commons.runtime.model.repository.ERepositoryStatus;
 import org.talend.core.GlobalServiceRegister;
 import org.talend.core.ICoreService;
+import org.talend.core.model.general.Project;
 import org.talend.core.model.properties.Item;
 import org.talend.core.model.properties.RoutineItem;
 import org.talend.core.model.repository.IRepositoryViewObject;
@@ -74,14 +75,34 @@ public abstract class ConfigExternalLibPage extends WizardPage {
                 isSysRoutine = true;
             }
         }
-        // when routine is system routne or in the ref project or routine is locked then set readonly
-        if (isOpened || isSysRoutine || !mainProject || status == ERepositoryStatus.LOCK_BY_OTHER
+        boolean userReadOnlyOnCurrentProject = repFactory.isUserReadOnlyOnCurrentProject();
+        // when routine is
+        // 1. system routne
+        // 2. in the ref project
+        // 3. routine is locked
+        // 4. user is readonly on current project
+        // 5. Tag project
+        // then set readonly
+        if (isOnTag() || userReadOnlyOnCurrentProject || isOpened || isSysRoutine || !mainProject
+                || status == ERepositoryStatus.LOCK_BY_OTHER
                 || status == ERepositoryStatus.LOCK_BY_USER) {
             readonly = true;
         }
         return readonly;
     }
 
+    private boolean isOnTag() {
+        Project currentProject = ProjectManager.getInstance().getCurrentProject();
+        String branch = ProjectManager.getCurrentBranchLabel(currentProject);
+        return branch.startsWith(ProjectManager.NAME_TAGS + ProjectManager.SEP_CHAR);
+    }
+
+    // @Override
+    // public boolean isOnTag(Project project) {
+    // String branch = ProjectManager.getCurrentBranchLabel(project);
+    // return branch.startsWith(SVNConstants.SEP_CHAR + SVNConstants.NAME_TAGS + SVNConstants.SEP_CHAR)
+    // || branch.startsWith(SVNConstants.NAME_TAGS + SVNConstants.SEP_CHAR);
+    // }
     /**
      * Subclasses should implement this for its own business.
      *
