@@ -15,9 +15,13 @@ package org.talend.repository.ui.wizards.ConfigExternalLib;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardPage;
 import org.talend.commons.runtime.model.repository.ERepositoryStatus;
+import org.talend.core.GlobalServiceRegister;
+import org.talend.core.ICoreService;
 import org.talend.core.model.properties.Item;
 import org.talend.core.model.properties.RoutineItem;
+import org.talend.core.model.repository.IRepositoryViewObject;
 import org.talend.core.repository.model.ProxyRepositoryFactory;
+import org.talend.repository.ProjectManager;
 import org.talend.repository.model.IProxyRepositoryFactory;
 import org.talend.repository.model.RepositoryNode;
 
@@ -30,6 +34,8 @@ import org.talend.repository.model.RepositoryNode;
 public abstract class ConfigExternalLibPage extends WizardPage {
 
     private IStructuredSelection selection;
+
+    private IRepositoryViewObject object;
 
     /**
      * Getter for selection.
@@ -55,8 +61,22 @@ public abstract class ConfigExternalLibPage extends WizardPage {
     public boolean isReadOnly() {
         boolean readonly = false;
         IProxyRepositoryFactory repFactory = ProxyRepositoryFactory.getInstance();
-        ERepositoryStatus status = repFactory.getStatus(getSelectedRepositoryNode().getObject());
-        if (status == ERepositoryStatus.LOCK_BY_OTHER || status == ERepositoryStatus.LOCK_BY_USER) {
+        RepositoryNode selectedRepositoryNode = getSelectedRepositoryNode();
+        ERepositoryStatus status = repFactory.getStatus(selectedRepositoryNode.getObject());
+        Item item = selectedRepositoryNode.getObject().getProperty().getItem();
+        ICoreService coreService = (ICoreService) GlobalServiceRegister.getDefault().getService(ICoreService.class);
+        // node can't be lock in offline mode , so use isOpendItemInEidtor instead.
+        boolean isOpened = coreService.isOpenedItemInEditor(selectedRepositoryNode.getObject());
+        boolean mainProject = ProjectManager.getInstance().isInCurrentMainProject(selectedRepositoryNode);
+        boolean isSysRoutine = false;
+        if (item instanceof RoutineItem) {
+            if (((RoutineItem) item).isBuiltIn()) {
+                isSysRoutine = true;
+            }
+        }
+        // when routine is system routne or in the ref project or routine is locked then set readonly
+        if (!isOpened || isSysRoutine || !mainProject || status == ERepositoryStatus.LOCK_BY_OTHER
+                || status == ERepositoryStatus.LOCK_BY_USER) {
             readonly = true;
         }
         return readonly;
