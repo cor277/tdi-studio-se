@@ -75,7 +75,7 @@ public abstract class ConfigExternalLibPage extends WizardPage {
             }
         }
         // when routine is system routne or in the ref project or routine is locked then set readonly
-        if (!isOpened || isSysRoutine || !mainProject || status == ERepositoryStatus.LOCK_BY_OTHER
+        if (isOpened || isSysRoutine || !mainProject || status == ERepositoryStatus.LOCK_BY_OTHER
                 || status == ERepositoryStatus.LOCK_BY_USER) {
             readonly = true;
         }
