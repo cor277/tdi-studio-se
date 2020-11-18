@@ -17,12 +17,15 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.talend.commons.runtime.model.repository.ERepositoryStatus;
 import org.talend.core.GlobalServiceRegister;
 import org.talend.core.ICoreService;
+import org.talend.core.context.Context;
+import org.talend.core.context.RepositoryContext;
 import org.talend.core.model.general.Project;
 import org.talend.core.model.properties.Item;
 import org.talend.core.model.properties.RoutineItem;
 import org.talend.core.model.repository.IRepositoryViewObject;
 import org.talend.core.model.repository.SVNConstant;
 import org.talend.core.repository.model.ProxyRepositoryFactory;
+import org.talend.core.runtime.CoreRuntimePlugin;
 import org.talend.repository.ProjectManager;
 import org.talend.repository.model.IProxyRepositoryFactory;
 import org.talend.repository.model.RepositoryNode;
@@ -80,13 +83,13 @@ public abstract class ConfigExternalLibPage extends WizardPage {
         // when routine is
         // 1. system routne
         // 2. in the ref project
-        // 3. routine is locked
+        // 3. routine is locked (when offline mode use isOpened, when default mode use LOCK_BY_USER)
         // 4. user is readonly on current project
         // 5. Tag project
         // then set readonly
-        if (isOnTag() || userReadOnlyOnCurrentProject || isOpened || isSysRoutine || !mainProject
-                || status == ERepositoryStatus.LOCK_BY_OTHER
-                || status == ERepositoryStatus.LOCK_BY_USER) {
+        boolean isOffline = getRepositoryContext().isOffline();
+        if (isOnTag() || userReadOnlyOnCurrentProject || (isOffline && isOpened) || isSysRoutine || !mainProject
+                || (!isOffline && (status == ERepositoryStatus.LOCK_BY_OTHER || status == ERepositoryStatus.LOCK_BY_USER))) {
             readonly = true;
         }
         return readonly;
@@ -111,6 +114,11 @@ public abstract class ConfigExternalLibPage extends WizardPage {
         }
         return branch.startsWith(SVNConstant.SEP_CHAR + SVNConstant.NAME_TAGS + SVNConstant.SEP_CHAR)
                 || branch.startsWith(SVNConstant.NAME_TAGS + SVNConstant.SEP_CHAR);
+    }
+
+    private RepositoryContext getRepositoryContext() {
+        Context ctx = CoreRuntimePlugin.getInstance().getContext();
+        return (RepositoryContext) ctx.getProperty(Context.REPOSITORY_CONTEXT_KEY);
     }
     /**
      * Subclasses should implement this for its own business.
