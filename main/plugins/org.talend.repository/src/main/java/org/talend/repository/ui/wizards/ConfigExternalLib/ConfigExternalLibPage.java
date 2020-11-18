@@ -21,6 +21,7 @@ import org.talend.core.model.general.Project;
 import org.talend.core.model.properties.Item;
 import org.talend.core.model.properties.RoutineItem;
 import org.talend.core.model.repository.IRepositoryViewObject;
+import org.talend.core.model.repository.SVNConstant;
 import org.talend.core.repository.model.ProxyRepositoryFactory;
 import org.talend.repository.ProjectManager;
 import org.talend.repository.model.IProxyRepositoryFactory;
@@ -94,15 +95,23 @@ public abstract class ConfigExternalLibPage extends WizardPage {
     private boolean isOnTag() {
         Project currentProject = ProjectManager.getInstance().getCurrentProject();
         String branch = ProjectManager.getCurrentBranchLabel(currentProject);
+        return isOnTagGit(branch) || isOnTagSvn(branch);
+    }
+
+    private boolean isOnTagGit(String branch) {
+        if (branch == null) {
+            return false;
+        }
         return branch.startsWith(ProjectManager.NAME_TAGS + ProjectManager.SEP_CHAR);
     }
 
-    // @Override
-    // public boolean isOnTag(Project project) {
-    // String branch = ProjectManager.getCurrentBranchLabel(project);
-    // return branch.startsWith(SVNConstants.SEP_CHAR + SVNConstants.NAME_TAGS + SVNConstants.SEP_CHAR)
-    // || branch.startsWith(SVNConstants.NAME_TAGS + SVNConstants.SEP_CHAR);
-    // }
+    private boolean isOnTagSvn(String branch) {
+        if (branch == null) {
+            return false;
+        }
+        return branch.startsWith(SVNConstant.SEP_CHAR + SVNConstant.NAME_TAGS + SVNConstant.SEP_CHAR)
+                || branch.startsWith(SVNConstant.NAME_TAGS + SVNConstant.SEP_CHAR);
+    }
     /**
      * Subclasses should implement this for its own business.
      *
